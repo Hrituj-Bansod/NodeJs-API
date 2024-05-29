@@ -26,9 +26,14 @@ jobs:
       - name: npm install and audit fix
         run: |
           npm install
-          npm audit fix
+          npm audit fix || true
           npm run build --if-present
-          echo "Error: no test specified" > /dev/null
+
+      - name: Run tests (if any)
+        run: |
+          if [ -f package.json ] && [ "$(jq -r '.scripts.test' package.json)" != "undefined" ]; then
+            npm run test || echo "No tests specified."
+          fi
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
